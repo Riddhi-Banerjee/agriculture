@@ -2,7 +2,6 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import joblib
-import tensorflow as tf
 from utils import *
 
 st.set_page_config(page_title="Smart Farming AI", layout="centered")
@@ -24,20 +23,17 @@ def load_all():
 
     scaler_if = joblib.load("model/scaler_if.pkl")
     scaler_lof = joblib.load("model/scaler_lof.pkl")
-    
     scaler_rule = joblib.load("model/scaler_rule.pkl")
 
     weights = joblib.load("model/weights.pkl")
     best_thresh = joblib.load("model/threshold.pkl")
     encoders = joblib.load("model/encoders.pkl")
 
-    
-
-    return df, if_models, lof_models, autoencoders, scalers, scaler_if, scaler_lof, scaler_ae, scaler_rule, weights, best_thresh, encoders
+    return df, if_models, lof_models, scalers, scaler_if, scaler_lof, scaler_rule, weights, best_thresh, encoders
 
 
-(df, if_models, lof_models, autoencoders, scalers,
- scaler_if, scaler_lof, scaler_ae, scaler_rule,
+(df, if_models, lof_models, scalers,
+ scaler_if, scaler_lof, scaler_rule,
  weights, best_thresh, encoders) = load_all()
 
 # ===============================
@@ -70,20 +66,21 @@ if st.button("🔍 Analyze"):
     }
 
     result = predict_user_input(
-    user_data,
-    if_models,
-    lof_models,
-    None,  # no autoencoder
-    scalers,
-    scaler_if,
-    scaler_lof,
-    None,
-    scaler_rule,
-    weights,
-    best_thresh,
-    encoders,
-    df
-)
+        user_data,
+        if_models,
+        lof_models,
+        None,  # no autoencoder
+        scalers,
+        scaler_if,
+        scaler_lof,
+        None,
+        scaler_rule,
+        weights,
+        best_thresh,
+        encoders,
+        df
+    )
+
     if "error" in result:
         st.error(result["error"])
     else:
