@@ -1,7 +1,6 @@
+streamlit
 pandas
 numpy
 scikit-learn
-matplotlib
-joblib
 tensorflow
-shap
+joblib
