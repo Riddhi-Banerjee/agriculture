@@ -31,11 +31,7 @@ def load_all():
     best_thresh = joblib.load("model/threshold.pkl")
     encoders = joblib.load("model/encoders.pkl")
 
-    autoencoders = {}
-    for key in if_models.keys():
-        crop, region = key
-        path = f"model/ae_models/ae_{crop}_{region}.h5"
-        autoencoders[key] = tf.keras.models.load_model(path)
+    
 
     return df, if_models, lof_models, autoencoders, scalers, scaler_if, scaler_lof, scaler_ae, scaler_rule, weights, best_thresh, encoders
 
@@ -74,21 +70,20 @@ if st.button("🔍 Analyze"):
     }
 
     result = predict_user_input(
-        user_data,
-        if_models,
-        lof_models,
-        autoencoders,
-        scalers,
-        scaler_if,
-        scaler_lof,
-        scaler_ae,
-        scaler_rule,
-        weights,
-        best_thresh,
-        encoders,
-        df
-    )
-
+    user_data,
+    if_models,
+    lof_models,
+    None,  # no autoencoder
+    scalers,
+    scaler_if,
+    scaler_lof,
+    None,
+    scaler_rule,
+    weights,
+    best_thresh,
+    encoders,
+    df
+)
     if "error" in result:
         st.error(result["error"])
     else:
