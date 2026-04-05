@@ -4,35 +4,23 @@ import pandas as pd
 import joblib
 from utils import *
 
-st.set_page_config(page_title="Smart Farming AI", layout="centered")
+# ===============================
+# PAGE CONFIG
+# ===============================
+st.set_page_config(page_title="Smart Farming AI 🌱", layout="centered")
 
 # ===============================
-# 🔥 CUSTOM UI STYLING
+# TITLE
 # ===============================
-st.markdown("""
-<style>
-.big-title {
-    font-size: 32px;
-    font-weight: bold;
-    color: #2e7d32;
-}
-.card {
-    padding: 15px;
-    border-radius: 10px;
-    background-color: #f5f5f5;
-    margin-bottom: 10px;
-}
-</style>
-""", unsafe_allow_html=True)
-
-st.markdown('<div class="big-title">🌱 Smart Farming AI</div>', unsafe_allow_html=True)
-st.write("AI-powered anomaly detection using sensor data")
+st.title("🌱 Smart Farming Anomaly Detection")
+st.markdown("AI-powered crop monitoring using sensor data")
 
 # ===============================
-# LOAD MODELS
+# LOAD MODELS + DATA
 # ===============================
 @st.cache_resource
 def load_all():
+
     df = pd.read_csv("data/Smart_Farming_Crop_Yield_2024.csv")
 
     if_models = joblib.load("model/if_models.pkl")
@@ -47,7 +35,11 @@ def load_all():
     best_thresh = joblib.load("model/threshold.pkl")
     encoders = joblib.load("model/encoders.pkl")
 
-    return df, if_models, lof_models, scalers, scaler_if, scaler_lof, scaler_rule, weights, best_thresh, encoders
+    return (
+        df, if_models, lof_models, scalers,
+        scaler_if, scaler_lof, scaler_rule,
+        weights, best_thresh, encoders
+    )
 
 
 (df, if_models, lof_models, scalers,
@@ -55,31 +47,37 @@ def load_all():
  weights, best_thresh, encoders) = load_all()
 
 # ===============================
-# INPUT MODE (SLIDER / MANUAL)
+# INPUT UI
 # ===============================
-mode = st.radio("Choose Input Mode", ["Slider", "Manual Input"])
+st.subheader("📥 Enter Farm Details")
 
-region = st.selectbox("Region", encoders['region'].classes_)
-crop = st.selectbox("Crop Type", encoders['crop_type'].classes_)
+# Mode selection
+mode = st.radio("Select Input Mode", ["Slider", "Manual"])
 
-if mode == "Slider":
-    soil_moisture = st.slider("Soil Moisture (%)", 0, 100, 40)
-    soil_pH = st.slider("Soil pH", 0.0, 14.0, 6.5)
-    temperature = st.slider("Temperature (°C)", -10, 60, 25)
-    rainfall = st.slider("Rainfall (mm)", 0, 500, 50)
-    humidity = st.slider("Humidity (%)", 0, 100, 60)
-    ndvi = st.slider("NDVI Index", 0.0, 1.0, 0.5)
+col1, col2 = st.columns(2)
 
-else:
-    soil_moisture = st.number_input("Soil Moisture (%)", 0.0, 100.0, 40.0)
-    soil_pH = st.number_input("Soil pH", 0.0, 14.0, 6.5)
-    temperature = st.number_input("Temperature (°C)", -10.0, 60.0, 25.0)
-    rainfall = st.number_input("Rainfall (mm)", 0.0, 500.0, 50.0)
-    humidity = st.number_input("Humidity (%)", 0.0, 100.0, 60.0)
-    ndvi = st.number_input("NDVI Index", 0.0, 1.0, 0.5)
+with col1:
+    region = st.selectbox("🌍 Region", encoders['region'].classes_)
+    crop = st.selectbox("🌾 Crop Type", encoders['crop_type'].classes_)
+
+with col2:
+    if mode == "Manual":
+        soil_moisture = st.number_input("Soil Moisture (%)", 0.0, 100.0, 40.0)
+        soil_pH = st.number_input("Soil pH", 0.0, 14.0, 6.5)
+        temperature = st.number_input("Temperature (°C)", -10.0, 60.0, 25.0)
+        rainfall = st.number_input("Rainfall (mm)", 0.0, 500.0, 50.0)
+        humidity = st.number_input("Humidity (%)", 0.0, 100.0, 60.0)
+        ndvi = st.number_input("NDVI Index", 0.0, 1.0, 0.5)
+    else:
+        soil_moisture = st.slider("Soil Moisture (%)", 0, 100, 40)
+        soil_pH = st.slider("Soil pH", 0.0, 14.0, 6.5)
+        temperature = st.slider("Temperature (°C)", -10, 60, 25)
+        rainfall = st.slider("Rainfall (mm)", 0, 500, 50)
+        humidity = st.slider("Humidity (%)", 0, 100, 60)
+        ndvi = st.slider("NDVI Index", 0.0, 1.0, 0.5)
 
 # ===============================
-# PREDICT
+# PREDICT BUTTON
 # ===============================
 if st.button("🔍 Analyze"):
 
@@ -98,7 +96,7 @@ if st.button("🔍 Analyze"):
         user_data,
         if_models,
         lof_models,
-        None,
+        None,  # no AE used
         scalers,
         scaler_if,
         scaler_lof,
@@ -110,38 +108,45 @@ if st.button("🔍 Analyze"):
         df
     )
 
+    # ===============================
+    # ERROR HANDLING
+    # ===============================
     if "error" in result:
         st.error(result["error"])
+
     else:
-
         # ===============================
-        # OUTPUT SAME AS YOUR ORIGINAL CODE
+        # RESULT DISPLAY
         # ===============================
-        st.markdown("### 📊 Scores")
-       
+        st.subheader("📊 Prediction Result")
 
-        # Decision
         if result["prediction"] == "ANOMALY":
-            st.error("⚠️ ANOMALY DETECTED!")
+            st.error("⚠️ Anomaly Detected!")
         elif result["prediction"] == "TENDENCY":
-            st.warning("🚨 Tendency towards ANOMALY!")
+            st.warning("🚨 Tendency towards anomaly")
         else:
-            st.success("✅ Conditions are NORMAL")
+            st.success("✅ Conditions Normal")
 
         # ===============================
-        # DETAILED ANALYSIS (SAME STYLE)
+        # ANALYSIS
         # ===============================
-        st.markdown("### 🔍 Detailed Analysis")
+        st.subheader("🔍 Analysis")
 
         if result["parameter_issues"]:
-            st.markdown("**📊 Parameter Issues:**")
+            st.markdown("### 📊 Parameter Issues")
             for i in result["parameter_issues"]:
-                st.write("-", i)
+                st.write("•", i)
 
         if result["sensor_issues"]:
-            st.markdown("**🔗 Sensor Issues:**")
+            st.markdown("### 🔗 Sensor Issues")
             for i in result["sensor_issues"]:
-                st.write("-", i)
+                st.write("•", i)
 
         if not result["parameter_issues"] and not result["sensor_issues"]:
             st.success("🌱 All conditions are optimal")
+
+# ===============================
+# FOOTER
+# ===============================
+st.markdown("---")
+st.caption("Built with ❤️ using AI for Smart Agriculture")
