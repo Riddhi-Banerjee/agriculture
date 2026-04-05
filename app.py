@@ -15,7 +15,7 @@ st.markdown("AI-powered crop monitoring using sensor data")
 @st.cache_resource
 def load_all():
 
-    df = pd.read_csv("data/dataset.csv")
+    df = pd.read_csv("data/Smart_Farming_Crop_Yield_2024.csv")
 
     if_models = joblib.load("model/if_models.pkl")
     lof_models = joblib.load("model/lof_models.pkl")
