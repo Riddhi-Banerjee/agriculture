@@ -140,20 +140,20 @@ def predict_user_input(
     # Scores
     if_raw = get_if_score(if_models[key], X)
     lof_raw = get_lof_score(lof_models[key], X)
-    ae_raw = get_ae_score(autoencoders[key], scalers[key], X)
+    ae_raw = 0
     rule_raw = detect_rule_anomalies(user_data)
 
     # Normalize
     if_s = scaler_if.transform([[if_raw]])[0][0]
     lof_s = scaler_lof.transform([[lof_raw]])[0][0]
-    ae_s = scaler_ae.transform([[ae_raw]])[0][0]
+    ae_s = 0
     rule_s = scaler_rule.transform([[rule_raw]])[0][0]
 
     # Final score
     final_score = (
         weights["if"] * if_s +
         weights["lof"] * lof_s +
-        weights["ae"] * ae_s +
+        0 +
         weights["rule"] * rule_s
     )
 
