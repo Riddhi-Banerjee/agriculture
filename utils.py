@@ -55,25 +55,29 @@ def detect_rule_anomalies(row):
 # =========================================
 # PARAMETER-LEVEL ANALYSIS
 # =========================================
-def detect_problems_dynamic(user_data, df, encoders):
+def detect_problems_dynamic(user_data):
 
     crop = encode_input(user_data['crop_type'], encoders['crop_type'])
     region = encode_input(user_data['region'], encoders['region'])
 
-    key_df = df[(df['crop_type'] == crop) & (df['region'] == region)]
+    key = (crop, region)
 
-    if len(key_df) == 0:
+    if key not in df.groupby(['crop_type','region']).groups:
         return ["No reference data available"]
+
+    group = df[(df['crop_type']==crop) & (df['region']==region)]
 
     issues = []
 
     for f in features:
-        low = key_df[f].quantile(0.10)
-        high = key_df[f].quantile(0.90)
+        low = group[f].quantile(0.10)
+        high = group[f].quantile(0.90)
+
         val = user_data[f]
 
         if val < low:
             issues.append(f"{f} too LOW (expected > {round(low,2)})")
+
         elif val > high:
             issues.append(f"{f} too HIGH (expected < {round(high,2)})")
 
