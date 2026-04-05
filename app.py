@@ -118,15 +118,7 @@ if st.button("🔍 Analyze"):
         # OUTPUT SAME AS YOUR ORIGINAL CODE
         # ===============================
         st.markdown("### 📊 Scores")
-        st.write(
-            f"IF: {result['scores']['if']} | "
-            f"LOF: {result['scores']['lof']} | "
-            f"AE: {result['scores']['ae']} | "
-            f"Rule: {result['scores']['rule']}"
-        )
-
-        st.markdown("### 🔥 Final Score")
-        st.write(result["final_score"])
+       
 
         # Decision
         if result["prediction"] == "ANOMALY":
