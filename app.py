@@ -24,7 +24,7 @@ def load_all():
 
     scaler_if = joblib.load("model/scaler_if.pkl")
     scaler_lof = joblib.load("model/scaler_lof.pkl")
-    scaler_ae = joblib.load("model/scaler_ae.pkl")
+    
     scaler_rule = joblib.load("model/scaler_rule.pkl")
 
     weights = joblib.load("model/weights.pkl")
