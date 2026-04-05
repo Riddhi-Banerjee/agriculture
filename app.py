@@ -4,24 +4,24 @@ import pandas as pd
 import joblib
 from utils import *
 
-# ===============================
-# PAGE CONFIG
-# ===============================
 st.set_page_config(page_title="Smart Farming AI 🌱", layout="centered")
 
-# ===============================
-# TITLE
-# ===============================
 st.title("🌱 Smart Farming Anomaly Detection")
 st.markdown("AI-powered crop monitoring using sensor data")
 
 # ===============================
-# LOAD MODELS + DATA
+# LOAD EVERYTHING
 # ===============================
 @st.cache_resource
 def load_all():
 
+    encoders = joblib.load("model/encoders.pkl")
+
     df = pd.read_csv("data/Smart_Farming_Crop_Yield_2024.csv")
+
+    # 🔥 FIX: encode dataset
+    for col in ['region', 'crop_type']:
+        df[col] = encoders[col].transform(df[col])
 
     if_models = joblib.load("model/if_models.pkl")
     lof_models = joblib.load("model/lof_models.pkl")
@@ -33,13 +33,8 @@ def load_all():
 
     weights = joblib.load("model/weights.pkl")
     best_thresh = joblib.load("model/threshold.pkl")
-    encoders = joblib.load("model/encoders.pkl")
 
-    return (
-        df, if_models, lof_models, scalers,
-        scaler_if, scaler_lof, scaler_rule,
-        weights, best_thresh, encoders
-    )
+    return df, if_models, lof_models, scalers, scaler_if, scaler_lof, scaler_rule, weights, best_thresh, encoders
 
 
 (df, if_models, lof_models, scalers,
@@ -51,7 +46,6 @@ def load_all():
 # ===============================
 st.subheader("📥 Enter Farm Details")
 
-# Mode selection
 mode = st.radio("Select Input Mode", ["Slider", "Manual"])
 
 col1, col2 = st.columns(2)
@@ -77,7 +71,7 @@ with col2:
         ndvi = st.slider("NDVI Index", 0.0, 1.0, 0.5)
 
 # ===============================
-# PREDICT BUTTON
+# PREDICT
 # ===============================
 if st.button("🔍 Analyze"):
 
@@ -96,7 +90,7 @@ if st.button("🔍 Analyze"):
         user_data,
         if_models,
         lof_models,
-        None,  # no AE used
+        None,
         scalers,
         scaler_if,
         scaler_lof,
@@ -108,16 +102,10 @@ if st.button("🔍 Analyze"):
         df
     )
 
-    # ===============================
-    # ERROR HANDLING
-    # ===============================
     if "error" in result:
         st.error(result["error"])
 
     else:
-        # ===============================
-        # RESULT DISPLAY
-        # ===============================
         st.subheader("📊 Prediction Result")
 
         if result["prediction"] == "ANOMALY":
@@ -144,6 +132,14 @@ if st.button("🔍 Analyze"):
 
         if not result["parameter_issues"] and not result["sensor_issues"]:
             st.success("🌱 All conditions are optimal")
+
+        # ===============================
+        # 🔥 RECOMMENDATIONS
+        # ===============================
+        st.subheader("💡 Smart Recommendations")
+
+        for rec in result["recommendations"]:
+            st.write("👉", rec)
 
 # ===============================
 # FOOTER
