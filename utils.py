@@ -151,7 +151,7 @@ def predict_user_input(
 
     if final_score > best_thresh:
         prediction = "ANOMALY"
-    elif final_score >= 0.5:
+    elif final_score >= 0.5 and final_score < best_thresh :
         prediction = "TENDENCY"
     else:
         prediction = "NORMAL"
