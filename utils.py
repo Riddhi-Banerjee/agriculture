@@ -149,7 +149,7 @@ def predict_user_input(
         weights["rule"] * rule_s
     )
 
-    if final_score > = 0.35:
+    if final_score >= 0.35:
         prediction = "ANOMALY"
     elif final_score >= 0.2 and final_score < 0.35 :
         prediction = "TENDENCY"
