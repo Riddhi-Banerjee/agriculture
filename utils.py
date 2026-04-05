@@ -1,8 +1,5 @@
 import numpy as np
 
-# =========================================
-# FEATURE LIST (IMPORTANT - SAME AS TRAINING)
-# =========================================
 features = [
     'soil_moisture_%',
     'soil_pH',
@@ -12,49 +9,32 @@ features = [
     'NDVI_index'
 ]
 
-# =========================================
-# ENCODING
-# =========================================
 def encode_input(value, encoder):
     if value in encoder.classes_:
         return encoder.transform([value])[0]
-    else:
-        return None
+    return None
 
-# =========================================
-# MODEL SCORE FUNCTIONS
-# =========================================
 def get_if_score(model, X):
     return -model.decision_function(X)[0]
 
 def get_lof_score(model, X):
     return -model.decision_function(X)[0]
 
-def get_ae_score(autoencoder, scaler, X):
-    X_scaled = scaler.transform(X)
-    recon = autoencoder.predict(X_scaled, verbose=0)
-    return np.mean((X_scaled - recon) ** 2)
-
-# =========================================
-# RULE-BASED ANOMALY
-# =========================================
 def detect_rule_anomalies(row):
     issues = 0
 
     if row['rainfall_mm'] > 100 and row['soil_moisture_%'] < 30:
         issues += 1
-
     if row['NDVI_index'] > 0.7 and row['soil_moisture_%'] < 25:
         issues += 1
-
     if row['temperature_C'] > 35 and row['humidity_%'] > 80:
         issues += 1
 
-    return issues * 2  # weighted
+    return issues * 2
 
-# =========================================
-# PARAMETER-LEVEL ANALYSIS
-# =========================================
+# ===============================
+# PARAMETER ANALYSIS
+# ===============================
 def detect_problems_dynamic(user_data, df, encoders):
 
     crop = encode_input(user_data['crop_type'], encoders['crop_type'])
@@ -79,15 +59,15 @@ def detect_problems_dynamic(user_data, df, encoders):
 
     return issues
 
-# =========================================
-# SENSOR FUSION LOGIC
-# =========================================
+# ===============================
+# SENSOR ISSUES
+# ===============================
 def detect_sensor_fusion_anomalies(data):
 
     issues = []
 
     if data['rainfall_mm'] > 100 and data['soil_moisture_%'] < 30:
-        issues.append("High rainfall but low soil moisture (sensor issue)")
+        issues.append("High rainfall but low soil moisture")
 
     if data['NDVI_index'] > 0.7 and data['soil_moisture_%'] < 25:
         issues.append("High NDVI but low soil moisture")
@@ -95,17 +75,41 @@ def detect_sensor_fusion_anomalies(data):
     if data['temperature_C'] > 35 and data['humidity_%'] > 80:
         issues.append("High temperature with very high humidity")
 
-    if data['temperature_C'] > 40 and data['NDVI_index'] > 0.7:
-        issues.append("Extreme temperature but high NDVI")
-
-    if data['rainfall_mm'] < 10 and data['NDVI_index'] > 0.8:
-        issues.append("Low rainfall but high NDVI")
-
     return issues
 
-# =========================================
-# MAIN PREDICTION FUNCTION (CORE)
-# =========================================
+# ===============================
+# 🔥 RECOMMENDATION ENGINE
+# ===============================
+def generate_recommendations(user_data):
+
+    recs = []
+
+    if user_data['soil_moisture_%'] < 30:
+        recs.append("Increase irrigation — soil moisture is low")
+
+    if user_data['soil_pH'] < 5.5:
+        recs.append("Add lime to increase soil pH")
+
+    if user_data['soil_pH'] > 7.5:
+        recs.append("Use sulfur or organic matter to reduce pH")
+
+    if user_data['temperature_C'] > 35:
+        recs.append("Use mulching or shade nets to reduce heat stress")
+
+    if user_data['humidity_%'] > 80:
+        recs.append("Improve ventilation to prevent fungal diseases")
+
+    if user_data['NDVI_index'] < 0.3:
+        recs.append("Crop health is poor — consider fertilizers or pest check")
+
+    if not recs:
+        recs.append("Maintain current conditions — everything looks optimal")
+
+    return recs
+
+# ===============================
+# MAIN FUNCTION
+# ===============================
 def predict_user_input(
     user_data,
     if_models,
@@ -122,7 +126,6 @@ def predict_user_input(
     df
 ):
 
-    # Encode
     crop = encode_input(user_data['crop_type'], encoders['crop_type'])
     region = encode_input(user_data['region'], encoders['region'])
 
@@ -134,29 +137,18 @@ def predict_user_input(
     if key not in if_models:
         return {"error": "No trained model for this crop-region"}
 
-    # Prepare input
     X = np.array([[user_data[f] for f in features]])
 
-    # Scores (hidden internally)
-    if_raw = get_if_score(if_models[key], X)
-    lof_raw = get_lof_score(lof_models[key], X)
-    ae_raw = 0
-    rule_raw = detect_rule_anomalies(user_data)
+    if_s = scaler_if.transform([[get_if_score(if_models[key], X)]])[0][0]
+    lof_s = scaler_lof.transform([[get_lof_score(lof_models[key], X)]])[0][0]
+    rule_s = scaler_rule.transform([[detect_rule_anomalies(user_data)]])[0][0]
 
-    # Normalize
-    if_s = scaler_if.transform([[if_raw]])[0][0]
-    lof_s = scaler_lof.transform([[lof_raw]])[0][0]
-    ae_s = 0
-    rule_s = scaler_rule.transform([[rule_raw]])[0][0]
-
-    # Final score
     final_score = (
         weights["if"] * if_s +
         weights["lof"] * lof_s +
         weights["rule"] * rule_s
     )
 
-    # Decision
     if final_score > best_thresh:
         prediction = "ANOMALY"
     elif final_score >= 0.5:
@@ -164,17 +156,9 @@ def predict_user_input(
     else:
         prediction = "NORMAL"
 
-    # ✅ FIXED PARAMETER ISSUES (important 🔥)
-    param_issues = detect_problems_dynamic(user_data, df, encoders)
-    fusion_issues = detect_sensor_fusion_anomalies(user_data)
-
-    # Remove useless message
-    if param_issues == ["No reference data available"]:
-        param_issues = []
-
     return {
-        "final_score": round(final_score, 4),
         "prediction": prediction,
-        "parameter_issues": param_issues,
-        "sensor_issues": fusion_issues
+        "parameter_issues": detect_problems_dynamic(user_data, df, encoders),
+        "sensor_issues": detect_sensor_fusion_anomalies(user_data),
+        "recommendations": generate_recommendations(user_data)
     }
