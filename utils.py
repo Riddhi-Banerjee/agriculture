@@ -141,7 +141,7 @@ def predict_user_input(
     # Prepare input
     X = np.array([[user_data[f] for f in features]])
 
-    # Scores
+    # Scores (hidden internally)
     if_raw = get_if_score(if_models[key], X)
     lof_raw = get_lof_score(lof_models[key], X)
     ae_raw = 0
@@ -157,7 +157,6 @@ def predict_user_input(
     final_score = (
         weights["if"] * if_s +
         weights["lof"] * lof_s +
-        0 +
         weights["rule"] * rule_s
     )
 
@@ -169,19 +168,17 @@ def predict_user_input(
     else:
         prediction = "NORMAL"
 
-    # Analysis
+    # ✅ FIXED PARAMETER ISSUES (important 🔥)
     param_issues = detect_problems_dynamic(user_data, df, encoders)
     fusion_issues = detect_sensor_fusion_anomalies(user_data)
+
+    # Remove useless message
+    if param_issues == ["No reference data available"]:
+        param_issues = []
 
     return {
         "final_score": round(final_score, 4),
         "prediction": prediction,
-        "scores": {
-            "if": round(if_s, 3),
-            "lof": round(lof_s, 3),
-            "ae": round(ae_s, 3),
-            "rule": round(rule_s, 3)
-        },
         "parameter_issues": param_issues,
         "sensor_issues": fusion_issues
     }
