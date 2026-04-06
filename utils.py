@@ -53,9 +53,9 @@ def detect_problems_dynamic(user_data, df, encoders):
         val = user_data[f]
 
         if val < low:
-            issues.append(f"{f} too LOW (expected > {round(low,2)})")
+            issues.append(f"{f} LOW (expected > {round(low,2)})")
         elif val > high:
-            issues.append(f"{f} too HIGH (expected < {round(high,2)})")
+            issues.append(f"{f} HIGH (expected < {round(high,2)})")
 
     return issues
 
