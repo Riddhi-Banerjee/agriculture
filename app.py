@@ -19,6 +19,9 @@ def load_all():
 
     df = pd.read_csv("data/Smart_Farming_Crop_Yield_2024.csv")
 
+# ✅ FORCE CONSISTENT FORMAT (VERY IMPORTANT)
+    df.columns = df.columns.str.strip().str.replace(" ", "_").str.lower()
+
     # 🔥 FIX: encode dataset
     for col in ['Region', 'Crop Type']:
         df[col] = encoders[col].transform(df[col])
