@@ -17,7 +17,7 @@ def load_all():
 
     df = pd.read_csv("data/Smart_Farming_Crop_Yield_2024.csv")
 
-    # 🔥 FIX: normalize dataset columns for models
+    # Normalize columns
     df.columns = df.columns.str.strip()
 
     df.rename(columns={
@@ -80,16 +80,17 @@ with col2:
 # ===============================
 if st.button("🔍 Analyze"):
 
+    # ✅ FIXED VARIABLE NAMES HERE
     user_data = {
-    'Region': region,
-    'Crop Type': crop,
-    'Soil Moisture (%)': soil_moisture,
-    'Soil pH': soil_pH,
-    'Temperature(C)': temperature,
-    'Rainfall (mm)': rainfall,
-    'Humidity (%)': humidity,
-    'NDVI_index': ndvi
-}
+        'Region': region,
+        'Crop Type': crop,
+        'Soil Moisture (%)': sm,
+        'Soil pH': ph,
+        'Temperature(C)': temp,
+        'Rainfall (mm)': rain,
+        'Humidity (%)': hum,
+        'NDVI_index': ndvi
+    }
 
     result = predict_user_input(
         user_data,
@@ -107,6 +108,9 @@ if st.button("🔍 Analyze"):
         df
     )
 
+    # ===============================
+    # OUTPUT
+    # ===============================
     if "error" in result:
         st.error(result["error"])
     else:
