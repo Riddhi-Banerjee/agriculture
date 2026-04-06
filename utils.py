@@ -47,14 +47,14 @@ def detect_rule_anomalies(row):
     return issues * 2
 
 # ===============================
-# PARAMETER ANALYSIS
+# PARAMETER ANALYSIS (FIXED)
 # ===============================
 def detect_problems_dynamic(user_data, df, encoders):
 
-    crop = encode_input(user_data['Crop Type'], encoders['Crop Type'])
-    region = encode_input(user_data['Region'], encoders['Region'])
+    crop = encode_input(user_data['Crop Type'], encoders['crop_type'])
+    region = encode_input(user_data['Region'], encoders['region'])
 
-    key_df = df[(df['Crop Type'] == crop) & (df['Region'] == region)]
+    key_df = df[(df['crop_type'] == crop) & (df['region'] == region)]
 
     if len(key_df) == 0:
         return []
@@ -93,10 +93,16 @@ def detect_sensor_fusion_anomalies(data):
     if data['Temperature(C)'] > 35 and data['Humidity (%)'] > 80:
         issues.append("High temperature with very high humidity")
 
+    if data['Temperature(C)'] > 40 and data['NDVI_index'] > 0.7:
+        issues.append("Extreme temperature but high NDVI")
+
+    if data['Rainfall (mm)'] < 10 and data['NDVI_index'] > 0.8:
+        issues.append("Low rainfall but high NDVI")
+
     return issues
 
 # ===============================
-# RECOMMENDATIONS
+# RECOMMENDATIONS ENGINE
 # ===============================
 def generate_recommendations(user_data):
 
@@ -112,21 +118,21 @@ def generate_recommendations(user_data):
         recs.append("Use sulfur or organic matter to reduce pH")
 
     if user_data['Temperature(C)'] > 35:
-        recs.append("Use mulching or shade nets")
+        recs.append("Use mulching or shade nets to reduce heat stress")
 
     if user_data['Humidity (%)'] > 80:
-        recs.append("Improve ventilation")
+        recs.append("Improve ventilation to prevent fungal diseases")
 
     if user_data['NDVI_index'] < 0.3:
-        recs.append("Crop health poor — check fertilizers/pests")
+        recs.append("Crop health is poor — check fertilizers or pests")
 
     if not recs:
-        recs.append("Maintain current conditions")
+        recs.append("Maintain current conditions — everything looks optimal")
 
     return recs
 
 # ===============================
-# MAIN PREDICTION
+# MAIN PREDICTION FUNCTION
 # ===============================
 def predict_user_input(
     user_data,
@@ -144,8 +150,9 @@ def predict_user_input(
     df
 ):
 
-    crop = encode_input(user_data['Crop Type'], encoders['Crop Type'])
-    region = encode_input(user_data['Region'], encoders['Region'])
+    # Encode (FIXED KEYS)
+    crop = encode_input(user_data['Crop Type'], encoders['crop_type'])
+    region = encode_input(user_data['Region'], encoders['region'])
 
     if crop is None or region is None:
         return {"error": "Invalid crop or region"}
@@ -158,16 +165,19 @@ def predict_user_input(
     # Convert UI → model format
     X = np.array([[user_data[col] for col in COLUMN_MAP.keys()]])
 
+    # Scores
     if_s = scaler_if.transform([[get_if_score(if_models[key], X)]])[0][0]
     lof_s = scaler_lof.transform([[get_lof_score(lof_models[key], X)]])[0][0]
     rule_s = scaler_rule.transform([[detect_rule_anomalies(user_data)]])[0][0]
 
+    # Final score
     final_score = (
         weights["if"] * if_s +
         weights["lof"] * lof_s +
         weights["rule"] * rule_s
     )
 
+    # Decision
     if final_score >= 0.35:
         prediction = "ANOMALY"
     elif final_score >= 0.2:
