@@ -1,7 +1,7 @@
 import numpy as np
 
 # ===============================
-# UI → MODEL COLUMN MAPPING
+# COLUMN MAP (UI → MODEL)
 # ===============================
 COLUMN_MAP = {
     'Soil Moisture (%)': 'soil_moisture_%',
@@ -30,7 +30,7 @@ def get_lof_score(model, X):
     return -model.decision_function(X)[0]
 
 # ===============================
-# RULE-BASED ANOMALY
+# RULE BASED
 # ===============================
 def detect_rule_anomalies(row):
     issues = 0
@@ -47,14 +47,13 @@ def detect_rule_anomalies(row):
     return issues * 2
 
 # ===============================
-# PARAMETER ANALYSIS (FIXED)
+# PARAMETER ANALYSIS (FINAL FIX)
 # ===============================
 def detect_problems_dynamic(user_data, df, encoders):
 
     crop = encode_input(user_data['Crop Type'], encoders['crop_type'])
     region = encode_input(user_data['Region'], encoders['region'])
 
-    # Filter correct group
     key_df = df[(df['crop_type'] == crop) & (df['region'] == region)]
 
     if len(key_df) == 0:
@@ -62,31 +61,21 @@ def detect_problems_dynamic(user_data, df, encoders):
 
     issues = []
 
-    # 🔥 IMPORTANT: Use SAME FEATURE NAMES as df
-    feature_map = {
-        'Soil Moisture (%)': 'soil_moisture_%',
-        'Soil pH': 'soil_pH',
-        'Temperature(C)': 'temperature_C',
-        'Rainfall (mm)': 'rainfall_mm',
-        'Humidity (%)': 'humidity_%',
-        'NDVI_index': 'NDVI_index'
-    }
+    for ui_col, df_col in COLUMN_MAP.items():
 
-    for user_key, df_key in feature_map.items():
-
-        if df_key not in key_df.columns:
+        if df_col not in key_df.columns:
             continue
 
-        low = key_df[df_key].quantile(0.10)
-        high = key_df[df_key].quantile(0.90)
+        low = key_df[df_col].quantile(0.10)
+        high = key_df[df_col].quantile(0.90)
 
-        val = user_data[user_key]
+        val = user_data[ui_col]
 
         if val < low:
-            issues.append(f"{user_key} is LOW (expected > {round(low,2)})")
+            issues.append(f"{ui_col} is LOW (expected > {round(low,2)})")
 
         elif val > high:
-            issues.append(f"{user_key} is HIGH (expected < {round(high,2)})")
+            issues.append(f"{ui_col} is HIGH (expected < {round(high,2)})")
 
     return issues
 
@@ -115,7 +104,7 @@ def detect_sensor_fusion_anomalies(data):
     return issues
 
 # ===============================
-# RECOMMENDATIONS ENGINE
+# RECOMMENDATIONS
 # ===============================
 def generate_recommendations(user_data):
 
@@ -145,7 +134,7 @@ def generate_recommendations(user_data):
     return recs
 
 # ===============================
-# MAIN PREDICTION FUNCTION
+# MAIN FUNCTION
 # ===============================
 def predict_user_input(
     user_data,
@@ -163,7 +152,6 @@ def predict_user_input(
     df
 ):
 
-    # Encode (FIXED KEYS)
     crop = encode_input(user_data['Crop Type'], encoders['crop_type'])
     region = encode_input(user_data['Region'], encoders['region'])
 
@@ -175,22 +163,18 @@ def predict_user_input(
     if key not in if_models:
         return {"error": "No trained model for this crop-region"}
 
-    # Convert UI → model format
     X = np.array([[user_data[col] for col in COLUMN_MAP.keys()]])
 
-    # Scores
     if_s = scaler_if.transform([[get_if_score(if_models[key], X)]])[0][0]
     lof_s = scaler_lof.transform([[get_lof_score(lof_models[key], X)]])[0][0]
     rule_s = scaler_rule.transform([[detect_rule_anomalies(user_data)]])[0][0]
 
-    # Final score
     final_score = (
         weights["if"] * if_s +
         weights["lof"] * lof_s +
         weights["rule"] * rule_s
     )
 
-    # Decision
     if final_score >= 0.35:
         prediction = "ANOMALY"
     elif final_score >= 0.2:
