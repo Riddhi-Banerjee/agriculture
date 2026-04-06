@@ -141,4 +141,4 @@ if st.button("🔍 Analyze"):
 # FOOTER
 # ===============================
 st.markdown("---")
-st.caption("Built with ❤️ for Smart Agriculture")
+
