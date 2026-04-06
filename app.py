@@ -1,5 +1,4 @@
 import streamlit as st
-import numpy as np
 import pandas as pd
 import joblib
 from utils import *
@@ -10,14 +9,13 @@ st.title("🌱 Smart Farming Anomaly Detection")
 st.markdown("AI-powered crop monitoring")
 
 # ===============================
-# LOAD
+# LOAD EVERYTHING
 # ===============================
 @st.cache_resource
 def load_all():
 
     df = pd.read_csv("data/Smart_Farming_Crop_Yield_2024.csv")
 
-    # Normalize columns
     df.columns = df.columns.str.strip()
 
     df.rename(columns={
@@ -40,6 +38,10 @@ def load_all():
     weights = joblib.load("model/weights.pkl")
     best_thresh = joblib.load("model/threshold.pkl")
     encoders = joblib.load("model/encoders.pkl")
+
+    # 🔥 CRITICAL FIX (MOST IMPORTANT)
+    df['crop_type'] = encoders['crop_type'].transform(df['crop_type'])
+    df['region'] = encoders['region'].transform(df['region'])
 
     return df, if_models, lof_models, scaler_if, scaler_lof, scaler_rule, weights, best_thresh, encoders
 
@@ -80,7 +82,6 @@ with col2:
 # ===============================
 if st.button("🔍 Analyze"):
 
-    # ✅ FIXED VARIABLE NAMES HERE
     user_data = {
         'Region': region,
         'Crop Type': crop,
@@ -108,9 +109,6 @@ if st.button("🔍 Analyze"):
         df
     )
 
-    # ===============================
-    # OUTPUT
-    # ===============================
     if "error" in result:
         st.error(result["error"])
     else:
