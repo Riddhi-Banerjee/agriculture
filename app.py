@@ -54,8 +54,8 @@ mode = st.radio("Input Mode", ["Manual", "Slider"])
 col1, col2 = st.columns(2)
 
 with col1:
-    region = st.selectbox("🌍 Region", encoders['Region'].classes_)
-    crop = st.selectbox("🌾 Crop Type", encoders['Crop Type'].classes_)
+    region = st.selectbox("🌍 Region", encoders['region'].classes_)
+    crop = st.selectbox("🌾 Crop Type", encoders['crop_type'].classes_)
 
 with col2:
     if mode == "Manual":
