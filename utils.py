@@ -23,11 +23,11 @@ def get_lof_score(model, X):
 def detect_rule_anomalies(row):
     issues = 0
 
-    if row['rainfall_mm'] > 100 and row['soil_moisture_%'] < 30:
+    if row['Rainfall (mm)'] > 100 and row['Soil Moisture (%)'] < 30:
         issues += 1
-    if row['NDVI_index'] > 0.7 and row['soil_moisture_%'] < 25:
+    if row['NDVI_index'] > 0.7 and row['Soil Moisture (%)'] < 25:
         issues += 1
-    if row['temperature_C'] > 35 and row['humidity_%'] > 80:
+    if row['Temperature(C)'] > 35 and row['Humidity (%)'] > 80:
         issues += 1
 
     return issues * 2
@@ -37,10 +37,10 @@ def detect_rule_anomalies(row):
 # ===============================
 def detect_problems_dynamic(user_data, df, encoders):
 
-    crop = encode_input(user_data['crop_type'], encoders['crop_type'])
-    region = encode_input(user_data['region'], encoders['region'])
+    crop = encode_input(user_data['Crop Type'], encoders['Crop Type'])
+    region = encode_input(user_data['Region'], encoders['Region'])
 
-    key_df = df[(df['crop_type'] == crop) & (df['region'] == region)]
+    key_df = df[(df['Crop Type'] == crop) & (df['Region'] == region)]
 
     if len(key_df) == 0:
         return []
@@ -66,13 +66,13 @@ def detect_sensor_fusion_anomalies(data):
 
     issues = []
 
-    if data['rainfall_mm'] > 100 and data['soil_moisture_%'] < 30:
+    if data['Rainfall (mm)'] > 100 and data['Soil Moisture (%)'] < 30:
         issues.append("High rainfall but low soil moisture")
 
-    if data['NDVI_index'] > 0.7 and data['soil_moisture_%'] < 25:
+    if data['NDVI_index'] > 0.7 and data['Soil Moisture (%)'] < 25:
         issues.append("High NDVI but low soil moisture")
 
-    if data['temperature_C'] > 35 and data['humidity_%'] > 80:
+    if data['Temperature(C)'] > 35 and data['Humidity (%)'] > 80:
         issues.append("High temperature with very high humidity")
 
     return issues
@@ -84,19 +84,19 @@ def generate_recommendations(user_data):
 
     recs = []
 
-    if user_data['soil_moisture_%'] < 30:
+    if user_data['Soil Moisture (%)'] < 30:
         recs.append("Increase irrigation — soil moisture is low")
 
-    if user_data['soil_pH'] < 5.5:
+    if user_data['Soil pH'] < 5.5:
         recs.append("Add lime to increase soil pH")
 
-    if user_data['soil_pH'] > 7.5:
+    if user_data['Soil pH'] > 7.5:
         recs.append("Use sulfur or organic matter to reduce pH")
 
-    if user_data['temperature_C'] > 35:
+    if user_data['Temperature(C)'] > 35:
         recs.append("Use mulching or shade nets to reduce heat stress")
 
-    if user_data['humidity_%'] > 80:
+    if user_data['Humidity (%)'] > 80:
         recs.append("Improve ventilation to prevent fungal diseases")
 
     if user_data['NDVI_index'] < 0.3:
@@ -126,8 +126,8 @@ def predict_user_input(
     df
 ):
 
-    crop = encode_input(user_data['crop_type'], encoders['crop_type'])
-    region = encode_input(user_data['region'], encoders['region'])
+    crop = encode_input(user_data['Crop Type'], encoders['Crop Type'])
+    region = encode_input(user_data['Region'], encoders['Region'])
 
     if crop is None or region is None:
         return {"error": "Invalid crop or region"}
