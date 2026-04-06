@@ -22,6 +22,9 @@ def load_all():
 # ✅ FORCE CONSISTENT FORMAT (VERY IMPORTANT)
     df.columns = df.columns.str.strip().str.replace(" ", "_").str.lower()
 
+    df['region'] = encoders['region'].transform(df['region'])
+    df['crop_type'] = encoders['crop_type'].transform(df['crop_type'])
+
     # 🔥 FIX: encode dataset
     for col in ['Region', 'Crop Type']:
         df[col] = encoders[col].transform(df[col])
