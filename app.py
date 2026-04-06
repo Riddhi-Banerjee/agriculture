@@ -81,15 +81,15 @@ with col2:
 if st.button("🔍 Analyze"):
 
     user_data = {
-        'Region': region,
-        'Crop Type': crop,
-        'Soil Moisture (%)': sm,
-        'Soil pH': ph,
-        'Temperature(C)': temp,
-        'Rainfall (mm)': rain,
-        'Humidity (%)': hum,
-        'NDVI_index': ndvi
-    }
+    'Region': region,
+    'Crop Type': crop,
+    'Soil Moisture (%)': soil_moisture,
+    'Soil pH': soil_pH,
+    'Temperature(C)': temperature,
+    'Rainfall (mm)': rainfall,
+    'Humidity (%)': humidity,
+    'NDVI_index': ndvi
+}
 
     result = predict_user_input(
         user_data,
