@@ -26,8 +26,8 @@ def load_all():
     df['crop_type'] = encoders['crop_type'].transform(df['crop_type'])
 
     # 🔥 FIX: encode dataset
-    for col in ['Region', 'Crop Type']:
-        df[col] = encoders[col].transform(df[col])
+    #for col in ['Region', 'Crop Type']:
+    #    df[col] = encoders[col].transform(df[col])
 
     if_models = joblib.load("model/if_models.pkl")
     lof_models = joblib.load("model/lof_models.pkl")
