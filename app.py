@@ -21,6 +21,8 @@ def load_all():
     df.columns = df.columns.str.strip()
 
     df.rename(columns={
+        'Crop Type': 'crop_type',
+        'Region': 'region',
         'Soil Moisture (%)': 'soil_moisture_%',
         'Soil pH': 'soil_pH',
         'Temperature(C)': 'temperature_C',
