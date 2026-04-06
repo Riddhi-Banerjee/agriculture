@@ -54,6 +54,7 @@ def detect_problems_dynamic(user_data, df, encoders):
     crop = encode_input(user_data['Crop Type'], encoders['crop_type'])
     region = encode_input(user_data['Region'], encoders['region'])
 
+    # Filter correct group
     key_df = df[(df['crop_type'] == crop) & (df['region'] == region)]
 
     if len(key_df) == 0:
@@ -61,19 +62,31 @@ def detect_problems_dynamic(user_data, df, encoders):
 
     issues = []
 
-    for ui_col, model_col in COLUMN_MAP.items():
+    # 🔥 IMPORTANT: Use SAME FEATURE NAMES as df
+    feature_map = {
+        'Soil Moisture (%)': 'soil_moisture_%',
+        'Soil pH': 'soil_pH',
+        'Temperature(C)': 'temperature_C',
+        'Rainfall (mm)': 'rainfall_mm',
+        'Humidity (%)': 'humidity_%',
+        'NDVI_index': 'NDVI_index'
+    }
 
-        if model_col not in key_df.columns:
+    for user_key, df_key in feature_map.items():
+
+        if df_key not in key_df.columns:
             continue
 
-        low = key_df[model_col].quantile(0.10)
-        high = key_df[model_col].quantile(0.90)
-        val = user_data[ui_col]
+        low = key_df[df_key].quantile(0.10)
+        high = key_df[df_key].quantile(0.90)
+
+        val = user_data[user_key]
 
         if val < low:
-            issues.append(f"{ui_col} LOW (expected > {round(low,2)})")
+            issues.append(f"{user_key} is LOW (expected > {round(low,2)})")
+
         elif val > high:
-            issues.append(f"{ui_col} HIGH (expected < {round(high,2)})")
+            issues.append(f"{user_key} is HIGH (expected < {round(high,2)})")
 
     return issues
 
