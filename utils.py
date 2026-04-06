@@ -1,11 +1,11 @@
 import numpy as np
 
 features = [
-    'soil_moisture_%',
-    'soil_pH',
-    'temperature_C',
-    'rainfall_mm',
-    'humidity_%',
+    'Soil Moisture (%)',
+    'Soil pH',
+    'Temperature(C)',
+    'Rainfall (mm)',
+    'Humidity (%)',
     'NDVI_index'
 ]
 
