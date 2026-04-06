@@ -20,7 +20,7 @@ def load_all():
     df = pd.read_csv("data/Smart_Farming_Crop_Yield_2024.csv")
 
     # 🔥 FIX: encode dataset
-    for col in ['region', 'crop_type']:
+    for col in ['Region', 'Crop Type']:
         df[col] = encoders[col].transform(df[col])
 
     if_models = joblib.load("model/if_models.pkl")
@@ -51,8 +51,8 @@ mode = st.radio("Select Input Mode", ["Slider", "Manual"])
 col1, col2 = st.columns(2)
 
 with col1:
-    region = st.selectbox("🌍 Region", encoders['region'].classes_)
-    crop = st.selectbox("🌾 Crop Type", encoders['crop_type'].classes_)
+    region = st.selectbox("🌍 Region", encoders['Region'].classes_)
+    crop = st.selectbox("🌾 Crop Type", encoders['Crop Type'].classes_)
 
 with col2:
     if mode == "Manual":
@@ -76,13 +76,13 @@ with col2:
 if st.button("🔍 Analyze"):
 
     user_data = {
-        'region': region,
-        'crop_type': crop,
-        'soil_moisture_%': soil_moisture,
-        'soil_pH': soil_pH,
-        'temperature_C': temperature,
-        'rainfall_mm': rainfall,
-        'humidity_%': humidity,
+        'Region': region,
+        'Crop Type': crop,
+        'Soil Moisture (%)': soil_moisture,
+        'Soil pH': soil_pH,
+        'Temperature(C)': temperature,
+        'Rainfall (mm)': rainfall,
+        'Humidity (%)': humidity,
         'NDVI_index': ndvi
     }
 
