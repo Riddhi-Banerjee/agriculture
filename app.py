@@ -98,19 +98,11 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-#st.image(
-#    "https://images.unsplash.com/photo-1464226184884-fa280b87c399",
- #   use_column_width=True
-#)
-st.markdown(
-    """
-    <div style='margin-top:20px; text-align:center;'>
-        <img src="https://images.unsplash.com/photo-1464226184884-fa280b87c399" 
-             style="width:100%; border-radius:15px; box-shadow:0 4px 20px rgba(0,0,0,0.3);"/>
-    </div>
-    """,
-    unsafe_allow_html=True
+st.image(
+    "https://images.unsplash.com/photo-1464226184884-fa280b87c399",
+     use_column_width=True
 )
+
 
 # ===============================
 # LOAD MODELS & DATA
@@ -228,7 +220,7 @@ if st.button("Analyze"):
         elif result["prediction"] == "TENDENCY":
             st.warning("⚠️ Tendency towards anomaly ⚠️")
         else:
-            st.success("✅ Normal Conditions ✅")
+            st.success(" Normal Conditions ✅")
 
         st.subheader("Analysis")
 
