@@ -98,10 +98,10 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-st.image(
-    "https://images.unsplash.com/photo-1464226184884-fa280b87c399",
-    use_column_width=True
-)
+#st.image(
+#    "https://images.unsplash.com/photo-1464226184884-fa280b87c399",
+ #   use_column_width=True
+#)
 st.markdown(
     """
     <div style='margin-top:20px; text-align:center;'>
@@ -251,8 +251,8 @@ if st.button("Analyze"):
 # ===============================
 # FOOTER
 # ===============================
-st.markdown("---")
-st.markdown(
+#st.markdown("---")
+#st.markdown(
 #    "<p style='text-align:center; color:gray;'>Built with AI for Smart Agriculture</p>",
-    unsafe_allow_html=True
-)
+   # unsafe_allow_html=True
+#)
