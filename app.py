@@ -1,15 +1,90 @@
+```python
 import streamlit as st
 import pandas as pd
 import joblib
 from utils import *
 
+# ===============================
+# PAGE CONFIG
+# ===============================
 st.set_page_config(page_title="Smart Farming AI 🌱", layout="centered")
 
-st.title("🌱 Smart Farming Anomaly Detection")
-st.markdown("AI-powered crop monitoring")
+# ===============================
+# PREMIUM UI CSS + BACKGROUND
+# ===============================
+def set_bg():
+    st.markdown(
+        """
+        <style>
+        .stApp {
+            background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)),
+                        url("https://images.unsplash.com/photo-1500382017468-9049fed747ef");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        h1 {
+            text-align: center;
+            color: #ffffff;
+            font-size: 42px;
+            font-weight: 700;
+        }
+
+        h2, h3 {
+            color: #f1f1f1;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.12);
+            padding: 25px;
+            border-radius: 15px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+        }
+
+        .stButton>button {
+            background: linear-gradient(90deg, #00c853, #64dd17);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .stButton>button:hover {
+            transform: scale(1.05);
+            background: linear-gradient(90deg, #64dd17, #00c853);
+        }
+
+        footer {visibility: hidden;}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+set_bg()
 
 # ===============================
-# LOAD EVERYTHING
+# HEADER
+# ===============================
+st.markdown("""
+<h1>🌱 Smart Farming AI</h1>
+<p style='text-align:center; color:#e0e0e0; font-size:18px;'>
+AI-powered Crop Health & Anomaly Detection 🚜
+</p>
+""", unsafe_allow_html=True)
+
+st.image(
+    "https://images.unsplash.com/photo-1464226184884-fa280b87c399",
+    use_column_width=True
+)
+
+# ===============================
+# LOAD MODELS & DATA
 # ===============================
 @st.cache_resource
 def load_all():
@@ -39,7 +114,6 @@ def load_all():
     best_thresh = joblib.load("model/threshold.pkl")
     encoders = joblib.load("model/encoders.pkl")
 
-    # 🔥 CRITICAL FIX (MOST IMPORTANT)
     df['crop_type'] = encoders['crop_type'].transform(df['crop_type'])
     df['region'] = encoders['region'].transform(df['region'])
 
@@ -51,6 +125,8 @@ df, if_models, lof_models, scaler_if, scaler_lof, scaler_rule, weights, best_thr
 # ===============================
 # INPUT UI
 # ===============================
+st.markdown('<div class="glass">', unsafe_allow_html=True)
+
 st.subheader("📥 Enter Farm Details")
 
 mode = st.radio("Input Mode", ["Manual", "Slider"])
@@ -77,8 +153,10 @@ with col2:
         hum = st.slider("Humidity (%)", 0, 100, 60)
         ndvi = st.slider("NDVI Index", 0.0, 1.0, 0.5)
 
+st.markdown('</div>', unsafe_allow_html=True)
+
 # ===============================
-# PREDICT
+# PREDICTION
 # ===============================
 if st.button("🔍 Analyze"):
 
@@ -112,14 +190,16 @@ if st.button("🔍 Analyze"):
     if "error" in result:
         st.error(result["error"])
     else:
+        st.markdown('<div class="glass">', unsafe_allow_html=True)
+
         st.subheader("📊 Result")
 
         if result["prediction"] == "ANOMALY":
-            st.error("⚠️ Anomaly Detected")
+            st.markdown("### ❌ <span style='color:red'>Anomaly Detected</span>", unsafe_allow_html=True)
         elif result["prediction"] == "TENDENCY":
-            st.warning("🚨 Tendency towards anomaly")
+            st.markdown("### ⚠️ <span style='color:orange'>Tendency towards anomaly</span>", unsafe_allow_html=True)
         else:
-            st.success("✅ Normal Conditions")
+            st.markdown("### ✅ <span style='color:lightgreen'>Normal Conditions</span>", unsafe_allow_html=True)
 
         st.subheader("🔍 Analysis")
 
@@ -137,8 +217,38 @@ if st.button("🔍 Analyze"):
         for r in result["recommendations"]:
             st.write("•", r)
 
+        st.markdown('</div>', unsafe_allow_html=True)
+
 # ===============================
 # FOOTER
 # ===============================
 st.markdown("---")
+st.markdown(
+    "<p style='text-align:center; color:gray;'>Built with ❤️ using AI for Smart Agriculture</p>",
+    unsafe_allow_html=True
+)
+```
 
+---
+
+## 🚀 What You Just Got
+
+Your app now has:
+
+* 🌄 Full-screen **crop background**
+* 🧊 **Glassmorphism cards**
+* 🎨 Premium **green gradient buttons**
+* 🌱 Clean **modern layout**
+* 📸 Crop banner image
+* ✨ Smooth hover effects
+
+---
+
+If you want next level (honestly insane level UI):
+
+* 🌍 Map visualization
+* 📈 Live anomaly graphs
+* 🧠 Explainable AI panel
+* 🎙 Voice input (Hindi/Bengali farmers)
+
+Just say *“next upgrade”* 😄
