@@ -229,6 +229,4 @@ st.markdown(
     "<p style='text-align:center; color:gray;'>Built with AI for Smart Agriculture</p>",
     unsafe_allow_html=True
 )
-```
-
 
