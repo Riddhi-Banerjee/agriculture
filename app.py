@@ -57,7 +57,7 @@ def set_bg():
         }
 
         .stSelectbox>div>div>div>div {
-            color: #ffffff;
+            color: #00d451;
             font-weight: bold;
         }
 
