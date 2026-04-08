@@ -102,6 +102,15 @@ st.image(
     "https://images.unsplash.com/photo-1464226184884-fa280b87c399",
     use_column_width=True
 )
+st.markdown(
+    """
+    <div style='margin-top:20px; text-align:center;'>
+        <img src="https://images.unsplash.com/photo-1464226184884-fa280b87c399" 
+             style="width:100%; border-radius:15px; box-shadow:0 4px 20px rgba(0,0,0,0.3);"/>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 # ===============================
 # LOAD MODELS & DATA
@@ -215,21 +224,21 @@ if st.button("Analyze"):
         st.subheader("Result")
 
         if result["prediction"] == "ANOMALY":
-            st.error("Anomaly Detected")
+            st.error("🚨 Anomaly Detected 🚨")
         elif result["prediction"] == "TENDENCY":
-            st.warning("Tendency towards anomaly")
+            st.warning("⚠️ Tendency towards anomaly ⚠️")
         else:
-            st.success("Normal Conditions")
+            st.success("✅ Normal Conditions ✅")
 
         st.subheader("Analysis")
 
         if result["parameter_issues"]:
-            st.markdown("Parameter Issues")
+            st.markdown("<p style='font-size:20px; font-weight:bold; color:#ffffff;'>Parameter Issues</p>", unsafe_allow_html=True)
             for i in result["parameter_issues"]:
                 st.write("•", i)
 
         if result["sensor_issues"]:
-            st.markdown("Sensor Issues")
+            st.markdown("<p style='font-size:20px; font-weight:bold; color:#ffffff;'>Sensor Issues</p>", unsafe_allow_html=True)
             for i in result["sensor_issues"]:
                 st.write("•", i)
 
@@ -244,6 +253,6 @@ if st.button("Analyze"):
 # ===============================
 st.markdown("---")
 st.markdown(
-    "<p style='text-align:center; color:gray;'>Built with AI for Smart Agriculture</p>",
+#    "<p style='text-align:center; color:gray;'>Built with AI for Smart Agriculture</p>",
     unsafe_allow_html=True
 )
