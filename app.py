@@ -1,4 +1,3 @@
-```python
 import streamlit as st
 import pandas as pd
 import joblib
@@ -7,7 +6,7 @@ from utils import *
 # ===============================
 # PAGE CONFIG
 # ===============================
-st.set_page_config(page_title="Smart Farming AI 🌱", layout="centered")
+st.set_page_config(page_title="Smart Farming AI", layout="centered")
 
 # ===============================
 # PREMIUM UI CSS + BACKGROUND
@@ -71,12 +70,15 @@ set_bg()
 # ===============================
 # HEADER
 # ===============================
-st.markdown("""
-<h1>🌱 Smart Farming AI</h1>
-<p style='text-align:center; color:#e0e0e0; font-size:18px;'>
-AI-powered Crop Health & Anomaly Detection 🚜
-</p>
-""", unsafe_allow_html=True)
+st.markdown(
+    """
+    <h1>Smart Farming AI</h1>
+    <p style='text-align:center; color:#e0e0e0; font-size:18px;'>
+    AI-powered Crop Health & Anomaly Detection
+    </p>
+    """,
+    unsafe_allow_html=True
+)
 
 st.image(
     "https://images.unsplash.com/photo-1464226184884-fa280b87c399",
@@ -127,15 +129,15 @@ df, if_models, lof_models, scaler_if, scaler_lof, scaler_rule, weights, best_thr
 # ===============================
 st.markdown('<div class="glass">', unsafe_allow_html=True)
 
-st.subheader("📥 Enter Farm Details")
+st.subheader("Enter Farm Details")
 
 mode = st.radio("Input Mode", ["Manual", "Slider"])
 
 col1, col2 = st.columns(2)
 
 with col1:
-    region = st.selectbox("🌍 Region", encoders['region'].classes_)
-    crop = st.selectbox("🌾 Crop Type", encoders['crop_type'].classes_)
+    region = st.selectbox("Region", encoders['region'].classes_)
+    crop = st.selectbox("Crop Type", encoders['crop_type'].classes_)
 
 with col2:
     if mode == "Manual":
@@ -158,7 +160,7 @@ st.markdown('</div>', unsafe_allow_html=True)
 # ===============================
 # PREDICTION
 # ===============================
-if st.button("🔍 Analyze"):
+if st.button("Analyze"):
 
     user_data = {
         'Region': region,
@@ -192,28 +194,28 @@ if st.button("🔍 Analyze"):
     else:
         st.markdown('<div class="glass">', unsafe_allow_html=True)
 
-        st.subheader("📊 Result")
+        st.subheader("Result")
 
         if result["prediction"] == "ANOMALY":
-            st.markdown("### ❌ <span style='color:red'>Anomaly Detected</span>", unsafe_allow_html=True)
+            st.error("Anomaly Detected")
         elif result["prediction"] == "TENDENCY":
-            st.markdown("### ⚠️ <span style='color:orange'>Tendency towards anomaly</span>", unsafe_allow_html=True)
+            st.warning("Tendency towards anomaly")
         else:
-            st.markdown("### ✅ <span style='color:lightgreen'>Normal Conditions</span>", unsafe_allow_html=True)
+            st.success("Normal Conditions")
 
-        st.subheader("🔍 Analysis")
+        st.subheader("Analysis")
 
         if result["parameter_issues"]:
-            st.markdown("### 📊 Parameter Issues")
+            st.markdown("Parameter Issues")
             for i in result["parameter_issues"]:
                 st.write("•", i)
 
         if result["sensor_issues"]:
-            st.markdown("### 🔗 Sensor Issues")
+            st.markdown("Sensor Issues")
             for i in result["sensor_issues"]:
                 st.write("•", i)
 
-        st.subheader("💡 Recommendations")
+        st.subheader("Recommendations")
         for r in result["recommendations"]:
             st.write("•", r)
 
@@ -224,31 +226,9 @@ if st.button("🔍 Analyze"):
 # ===============================
 st.markdown("---")
 st.markdown(
-    "<p style='text-align:center; color:gray;'>Built with ❤️ using AI for Smart Agriculture</p>",
+    "<p style='text-align:center; color:gray;'>Built with AI for Smart Agriculture</p>",
     unsafe_allow_html=True
 )
 ```
 
----
 
-## 🚀 What You Just Got
-
-Your app now has:
-
-* 🌄 Full-screen **crop background**
-* 🧊 **Glassmorphism cards**
-* 🎨 Premium **green gradient buttons**
-* 🌱 Clean **modern layout**
-* 📸 Crop banner image
-* ✨ Smooth hover effects
-
----
-
-If you want next level (honestly insane level UI):
-
-* 🌍 Map visualization
-* 📈 Live anomaly graphs
-* 🧠 Explainable AI panel
-* 🎙 Voice input (Hindi/Bengali farmers)
-
-Just say *“next upgrade”* 😄
